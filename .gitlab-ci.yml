@@ -1,0 +1,14 @@
+include:
+  - project: infrastructure/ci/templates
+    file: frontend/v4/cache.yml
+  - project: infrastructure/ci/templates
+    file: frontend/v4/build.yml
+  - project: infrastructure/ci/templates
+    file: frontend/v4/publish-registry.yml
+
+variables:
+  NODEJS_VERSION: 20
+
+sonar:
+ rules:
+   - when: never
