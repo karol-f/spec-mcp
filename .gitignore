@@ -47,3 +47,4 @@ tasks.json
 .taskmaster
 CLAUDE.md
 .github/instructions/nx.instructions.md
+.spec

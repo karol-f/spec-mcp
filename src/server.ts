@@ -919,41 +919,41 @@ Note: This orchestrator provides strategic coordination. Actual implementation h
 
 ## ⚠️ CRITICAL: YOU MUST NOW USE SPEC MCP TOOLS ⚠️
 
-**IMPORTANT**: The instructions above are analysis only. You MUST now ACTUALLY CALL the SpecMCP tools to implement tasks!
+**IMPORTANT**: The instructions above are analysis only. You MUST now ACTUALLY CALL the Spec MCP tools to implement tasks!
 
 ### 🔴 REQUIRED ACTIONS - USE THESE SPEC MCP TOOLS NOW:
 
 Based on the analysis above, you MUST immediately:
 
-1. **For EACH ready task identified above**, CALL the SpecMCP \`task-executor\` tool:
+1. **For EACH ready task identified above**, CALL the Spec MCP \`task-executor\` tool:
    \`\`\`
-   USE SpecMCP tool: task-executor
+   USE Spec MCP tool: task-executor
    Parameters:
    - task_id: "[Task ID from above, e.g., T-1]"
    - project_path: "${project_path}"
    \`\`\`
 
-2. **After implementing each task**, CALL the SpecMCP \`task-checker\` tool:
+2. **After implementing each task**, CALL the Spec MCP \`task-checker\` tool:
    \`\`\`
-   USE SpecMCP tool: task-checker
+   USE Spec MCP tool: task-checker
    Parameters:
    - task_id: "[Same Task ID]"
    - project_path: "${project_path}"
    \`\`\`
 
 ### ⚠️ DO NOT JUST READ THESE INSTRUCTIONS ⚠️
-**You MUST actually CALL/INVOKE/USE the SpecMCP tools mentioned above!**
+**You MUST actually CALL/INVOKE/USE the Spec MCP tools mentioned above!**
 
 These are NOT suggestions - they are REQUIRED tool calls you must make NOW.
 
 **Clarification**:
-- These are SpecMCP tools (external MCP server tools)
+- These are Spec MCP tools (external MCP server tools)
 - NOT internal VSCode TODO tools
 - Task status is tracked in tasks.md file
-- You MUST invoke these tools through the SpecMCP interface
+- You MUST invoke these tools through the Spec MCP interface
 
 **Example of what you should do next:**
-"I will now call the SpecMCP task-executor tool for task T-1..."
+"I will now call the Spec MCP task-executor tool for task T-1..."
 [Then ACTUALLY call the tool]`;
 
     return {
@@ -1213,12 +1213,12 @@ This tool has provided you with implementation guidance for Task ${task_id}.
 1. **IMPLEMENT** the task following the phases above
 2. **UPDATE** the task status in ${project_path}/.spec/specs/tasks.md file (NOT internal TODO list)
 3. **CHECK** acceptance criteria boxes as you complete them
-4. **VERIFY** with SpecMCP \`task-checker\` tool when done
+4. **VERIFY** with Spec MCP \`task-checker\` tool when done
 
 **Clarification:**
 - Task status is tracked in the tasks.md FILE (not VSCode's internal TODO system)
 - Update status by EDITING the tasks.md file directly
-- After implementation, CALL the SpecMCP \`task-checker\` tool to verify
+- After implementation, CALL the Spec MCP \`task-checker\` tool to verify
 
 **DO NOT** just read these instructions - **ACTUALLY IMPLEMENT** the task now!`;
 
@@ -1316,8 +1316,8 @@ This tool has verified whether Task ${task_id} is complete.
 
 1. **If PASS (all checkboxes checked):**
    - UPDATE the task status to ✅ Done in ${project_path}/.spec/specs/tasks.md
-   - CALL SpecMCP \`task-orchestrator\` tool to identify next tasks
-   - CALL SpecMCP \`task-executor\` tool for the next available task
+   - CALL Spec MCP \`task-orchestrator\` tool to identify next tasks
+   - CALL Spec MCP \`task-executor\` tool for the next available task
 
 2. **If FAIL (some checkboxes unchecked):**
    - DO NOT mark the task as Done
@@ -1328,7 +1328,7 @@ This tool has verified whether Task ${task_id} is complete.
 **Remember:**
 - Task status is in the tasks.md FILE (not internal TODO)
 - Use Edit tool to update the tasks.md file directly
-- These are SpecMCP tools, not VSCode internal tools`;
+- These are Spec MCP tools, not VSCode internal tools`;
 
     return {
       content: [{

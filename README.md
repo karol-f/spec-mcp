@@ -39,19 +39,17 @@ Add to your VS Code MCP configuration file:
 
 #### Zed
 
-1. Open Zed Settings (Preferences > Settings)
+1. Open Zed > Settings > Open Settings (it will open `~/. config/zed/settings.json`)
 2. Add a context_servers section to your configuration:
 
 ```json
 {
   "context_servers": {
     "spec": {
-      "command": {
-        "path": "npx",
-        "args": ["-y", "spec-mcp@latest"],
-        "env": {}
-      },
-      "settings": {}
+      "source": "custom",
+      "command": "npx",
+      "args": ["-y", "spec-mcp@latest"],
+      "env": {}
     }
   }
 }
@@ -83,6 +81,52 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 }
 ```
 
+## Workflow
+
+The Spec MCP workflow guides you through complex development tasks like framework migrations, feature implementation, or refactoring. Follow these steps:
+
+### 1. Analyze Codebase (One-time Setup)
+Analyze the existing codebase to create steering documents that guide all future operations.
+
+**Prompt:** `Use Spec MCP to analyze the codebase`
+
+This creates three steering documents in `.spec/steering/`:
+- `product.md` - Product overview and business context
+- `tech.md` - Technology stack and development guidelines
+- `structure.md` - Project organization and patterns
+
+*Note: You can recreate these documents anytime with `force_regenerate=true`*
+
+### 2. Search Documentation
+Search documentation for relevant information about frameworks, APIs, or migration guides using e.g. Context7 MCP.
+
+**Prompt:** `Search docs with Context7 MCP for [topic/framework/library]`
+
+### 3. Generate Plan
+Create a comprehensive plan based on your requirements and the current codebase context.
+
+**Prompt:** `Create a plan with Spec MCP to [describe your objective]`
+
+This generates `.spec/specs/plan.md` with requirements, design, and traceability.
+
+### 4. Generate Tasks
+Break down the plan into actionable, testable tasks with dependencies.
+
+**Prompt:** `Generate tasks from the plan using Spec MCP`
+
+This creates `.spec/specs/tasks.md` with detailed implementation tasks.
+
+### 5. Implement Tasks
+Execute tasks systematically using the task orchestrator, which handles dependencies and parallelization.
+
+**Prompt:** `Implement tasks from tasks.md using Spec MCP task orchestrator`
+
+The orchestrator will:
+- Identify ready tasks based on dependencies
+- Execute tasks through task-executor
+- Verify completion with task-checker
+- Report progress and next available tasks
+
 ## Available Tools
 
 ### generate-codebase-analysis
@@ -102,65 +146,6 @@ Executes a specific task from tasks.md by providing detailed implementation guid
 
 ### verify-implementation
 READ-ONLY verification tool that checks completed task implementation against acceptance criteria, runs EXISTING project tests, and reports quality status. This tool ONLY verifies and reports - it does NOT create or modify any files, tests, or code.
-
-## Workflow
-
-The SpecMCP workflow guides you through complex development tasks like framework migrations, feature implementation, or refactoring. Follow these steps:
-
-### 1. Analyze Codebase (One-time Setup)
-Analyze the existing codebase to create steering documents that guide all future operations.
-
-**Prompt:** `Use SpecMCP to analyze the codebase`
-
-This creates three steering documents in `.spec/steering/`:
-- `product.md` - Product overview and business context
-- `tech.md` - Technology stack and development guidelines
-- `structure.md` - Project organization and patterns
-
-*Note: You can recreate these documents anytime with `force_regenerate=true`*
-
-### 2. Search Documentation
-Search documentation for relevant information about frameworks, APIs, or migration guides using e.g. Context7 MCP.
-
-**Prompt:** `Search docs with Context7 MCPfor [topic/framework/library]`
-
-### 3. Generate Plan
-Create a comprehensive plan based on your requirements and the current codebase context.
-
-**Prompt:** `Create a plan with SpecMCP to [describe your objective]`
-
-This generates `.spec/specs/plan.md` with requirements, design, and traceability.
-
-### 4. Generate Tasks
-Break down the plan into actionable, testable tasks with dependencies.
-
-**Prompt:** `Generate tasks from the plan using SpecMCP`
-
-This creates `.spec/specs/tasks.md` with detailed implementation tasks.
-
-### 5. Implement Tasks
-Execute tasks systematically using the task orchestrator, which handles dependencies and parallelization.
-
-**Prompt:** `Implement tasks from tasks.md using SpecMCP task orchestrator`
-
-The orchestrator will:
-- Identify ready tasks based on dependencies
-- Execute tasks through task-executor
-- Verify completion with task-checker
-- Report progress and next available tasks
-
-### Example: Framework Migration
-```
-1. "Use SpecMCP to analyze the codebase"
-2. "Search SpecMCP docs for Application Framework v10 migration guide"
-3. "Create a plan with SpecMCP to migrate from Application Framework 9.6.0 to 10.0.0"
-4. "Generate tasks from the plan using SpecMCP"
-5. "Implement tasks from tasks.md using SpecMCP task orchestrator"
-```
-
-## API Documentation
-
-See [API Documentation](docs/api.md) for detailed tool specifications and examples.
 
 ## License
 
