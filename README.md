@@ -37,6 +37,26 @@ Add to your VS Code MCP configuration file:
 }
 ```
 
+#### Zed
+
+1. Open Zed Settings (Preferences > Settings)
+2. Add a context_servers section to your configuration:
+
+```json
+{
+  "context_servers": {
+    "spec": {
+      "command": {
+        "path": "npx",
+        "args": ["-y", "spec-mcp@latest"],
+        "env": {}
+      },
+      "settings": {}
+    }
+  }
+}
+```
+
 #### Claude Code (CLI)
 
 For Claude Code CLI, use the following command:
