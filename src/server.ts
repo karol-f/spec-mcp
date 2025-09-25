@@ -85,10 +85,6 @@ Create ${project_path}/.spec/steering/product.md with:
 - [Objective 1 derived from codebase context]
 - [Objective 2 derived from codebase context]
 
-## Success Metrics
-- [Metric 1]: [Target/expectation]
-- [Metric 2]: [Target/expectation]
-
 ## Product Context
 [Additional context about the product's market, competition, or unique value proposition]
 
@@ -217,7 +213,7 @@ ${additional_context ? `\n## Additional Context\n${additional_context}` : ''}
 ✅ Files verified to exist using Read tool
 ✅ Each file follows content structure exactly
 ✅ All content derived from actual codebase analysis
-✅ Files ready for use with generate-plan tool
+✅ Files ready for use with generate-tasks tool
 
 ⚠️ FINAL REMINDER: You MUST use Write tool to create the files. Do not just say they were created.
 
@@ -232,291 +228,25 @@ These files should be automatically included in every AI interaction.`;
   }
 );
 
-// Plan Generation Tool Registration
-server.registerTool(
-  'generate-plan',
-  {
-    title: 'Generate Plan',
-    description: 'Creates a single plan.md that merges Requirements (EARS) and Design (architecture, models, APIs) with traceability, ready for task generation. Uses current directory if project_path not specified.',
-    inputSchema: {
-      user_request: z.string().describe("The user's feature request or requirement"),
-      project_path: z.string().optional().describe("Path to the project directory (defaults to current directory)"),
-      // Optional steering content if the caller wants to inject it directly:
-      product_steering: z.string().optional().describe("Content of product.md steering"),
-      tech_steering: z.string().optional().describe("Content of tech.md steering"),
-      structure_steering: z.string().optional().describe("Content of structure.md steering"),
-      existing_codebase_context: z.string().optional().describe("Relevant existing code context"),
-      // Evidence-based context from pre-analysis
-      analysis_context: z.string().optional().describe("Optional: Code examples and patterns discovered during analysis"),
-      evidence_notes: z.string().optional().describe("Optional: Notes about what exists vs what needs creation")
-    }
-  },
-  async ({ user_request, project_path = '.', product_steering, tech_steering, structure_steering, existing_codebase_context, analysis_context, evidence_notes }) => {
-    const prompt = `# ⚠️ IMPORTANT: YOU MUST EXECUTE THE FOLLOWING ACTIONS
-
-This MCP tool provides instructions that YOU (the AI assistant) must execute using your available file system tools.
-**DO NOT** just report success - you MUST actually create the file using Write or MultiEdit tools.
-
-# Generate Merged Plan (Requirements + Design) for ${project_path}
-
-## SIMPLICITY PRINCIPLES
-1. Start with minimal viable tasks
-2. Avoid over-engineering test requirements
-3. Only include necessary sections per task
-4. Focus on implementation, not process
-5. Prefer iterative improvements over perfection
-
-## PREREQUISITE FILES TO READ
-Before generating the plan, FIRST check for and read these steering documents if they exist:
-1) **USE Read tool** to load: ${project_path}/.spec/steering/product.md
-2) **USE Read tool** to load: ${project_path}/.spec/steering/tech.md
-3) **USE Read tool** to load: ${project_path}/.spec/steering/structure.md
-
-If these files exist, incorporate their content into the plan generation below.
-If they don't exist AND no steering content parameters were provided:
-- Consider if you need to generate them first using the generate-codebase-analysis tool
-- OR use the optional steering content parameters provided
-- OR proceed without them if not critical for this specific plan
-
-## 🔴 CRITICAL: YOU MUST CREATE THE FILE - NOT JUST REPORT SUCCESS
-### File Creation Instructions:
-1) **USE Bash tool** to create directory: mkdir -p ${project_path}/.spec/specs/
-2) **Generate the complete plan.md content** based on the template below
-3) **USE Write tool** to save the generated content to: ${project_path}/.spec/specs/plan.md
-4) **USE Read tool** to verify the file exists after creation
-
-⚠️ The file MUST be physically created on the filesystem. Do NOT proceed without using the Write tool.
-
-## Inputs
-### User Request
-${user_request}
-
-${product_steering ? `### Product Steering (Context)\n${product_steering}\n` : ''}
-${tech_steering ? `### Tech Steering (Context)\n${tech_steering}\n` : ''}
-${structure_steering ? `### Structure Steering (Context)\n${structure_steering}\n` : ''}
-${existing_codebase_context ? `### Existing Codebase Context\n${existing_codebase_context}\n` : ''}
-${analysis_context ? `### Analysis Context (Examples and Patterns)\n${analysis_context}\n` : ''}
-${evidence_notes ? `### Evidence Notes\n${evidence_notes}\n` : ''}
-
----
-
-## Guardrails
-- Use file paths, names, APIs, and data types only when confirmed in references.
-- Quote evidence verbatim for code examples; tag each snippet as [EXAMPLE] with source: path[:line].
-
-## Reference Materials (MANDATORY)
-- Read all steering documents if present: .spec/steering/product.md, tech.md, structure.md
-- Treat all read content as normative sources for evidence
-
-## Evidence Tracking Instructions
-Tag all technical details with:
-- [EXISTS] = Already in codebase (include file path)
-- [EXAMPLE] = From external source (cite source)
-- [NEEDED] = Must be created or decided
-
-Rules:
-1. Only include runnable code if [EXISTS] or [EXAMPLE]
-2. Mark proposals and new designs as [NEEDED]
-3. Each requirement should reference evidence tags where applicable
-4. Include provided analysis_context examples in Section 2.7
-
-# plan.md
-
-## 0. Overview
-- Purpose: Summarize the feature and intended outcomes in 2–3 sentences.
-- Scope: What's in and what's out for this iteration.
-- Assumptions: Any constraints or assumptions that influence design.
-
-## 1. Requirements
-Provide numbered requirements with user stories and EARS acceptance criteria for each.
-- Formatting: “As a [role], I want [goal] so that [benefit]”.
-- Use EARS for every acceptance criterion: WHEN [condition] THEN THE SYSTEM SHALL [expected behavior].
-
-### 1.1 Requirement R-1: <Extract specific issue from your context> or <Title>
-- User Story: As a <specific role from context>, I want <specific change from context>, so that <...>.
-- Files Affected: <List every file:line mentioned in context for this requirement>
-- Acceptance Criteria (EARS)
-  1) WHEN <specific condition using actual names from context> THEN THE SYSTEM SHALL <specific behavior>
-  2) WHEN <specific condition> AND <specific state> THEN THE SYSTEM SHALL <specific action>
-- Evidence Tags: Mark all technical details as [EXISTS], [EXAMPLE], or [NEEDED]
-
-FORBIDDEN: Placeholders like [...], generic names, or any bracketed text for humans to fill
-REQUIRED: Every <bracket> must be replaced with actual values from context or marked [NEEDED] with rationale
-
-### 1.2 Requirement R-2: <Extract specific issue from your context>
-- User Story: As a <specific role from context>, I want <specific change referencing actual files>, so that <measurable benefit>.
-- Files Affected: <List every file:line mentioned in context for this requirement>
-- Acceptance Criteria (EARS)
-  1) WHEN <specific condition using actual names from context> THEN THE SYSTEM SHALL <specific behavior>
-- Evidence Tags: Mark all technical details as [EXISTS], [EXAMPLE], or [NEEDED]
-
-[Add more requirements R-3, R-4… as needed]
-
-#### 1.n Edge Cases and Errors
-- [Edge case or error] → Expected behavior.
-
-#### 1.x Global Non-Functional Requirements
-- Performance targets, security, accessibility, scalability, compatibility, observability.
-
-## 2. Design
-Explain how the solution satisfies each requirement, with explicit links to R-IDs.
-
-### 2.1 Architecture
-- Components and boundaries, responsibilities, and data flow.
-- Key decisions/trade-offs and rationale.
-
-#### Sequence Diagram
-\`\`\`mermaid
-sequenceDiagram
-  participant User
-  participant Frontend
-  participant API
-  participant DB
-  User->>Frontend: [Action]
-  Frontend->>API: [Request]
-  API->>DB: [Query]
-  DB-->>API: [Result]
-  API-->>Frontend: [Response]
-  Frontend-->>User: [Result]
-\`\`\`
-
-### 2.2 Data Models
-- Define entities and important fields, include TypeScript interfaces or schemas.
-\`\`\`typescript
-interface ExampleEntity {
-  id: string
-  /* fields */
-  createdAt: string
-  updatedAt: string
-}
-\`\`\`
-
-### 2.3 API Design
-- Endpoints or GraphQL schema with request/response shapes.
-- AuthZ/AuthN flows, versioning, and rate limits.
-
-### 2.4 Integration Points
-- External services, webhooks, queues, and error strategies.
-
-### 2.5 Security, Performance, Accessibility
-- Threat model highlights, validation/sanitization.
-- Caching/indexing and latency budgets.
-- A11y: keyboard navigation, focus management, ARIA.
-
-### 2.6 Testing Strategy
-- Unit: modules/components and cases.
-- Integration: API/database flows.
-- E2E: primary user journeys tied to R-IDs.
-
-### 2.7 Implementation Evidence
-
-#### What Exists [EXISTS]
-For EVERY file mentioned in your context, list here:
-<filepath>:<lines> - <description from context> - <action needed>
-
-Requirements:
-- Entries with real file paths (or as many as context provides)
-- Include key functions/classes/modules and their locations
-- Each entry must trace to context source
-
-#### Reference Examples [EXAMPLE]
-Copy EVERY code example from your context VERBATIM:
-\`\`\`<language>
-[exact code from context]
-\`\`\`
-source: <path[:line]>
-
-Requirements:
-- Verbatim code blocks (or as many as context provides)
-- Each must cite source: <path[:line]>
-
-#### What's Needed [NEEDED]
-Every missing artifact or unknown from context:
-<Specific action> - <Files affected or "location TBD"> - <Rationale from context>
-
-Requirements:
-- Every recommendation from context must appear here
-- If location unknown, specify "location TBD" with discovery step
-
-## 3. Traceability Matrix
-Map each requirement to design elements to support task generation.
-- R-1 → Components: […], APIs: […], Data models: […].
-- R-2 → Components: […], APIs: […], Data models: […].
-[Add rows per R-ID]
-
-## 4. Definition of Done
-- All EARS acceptance criteria met and testable.
-- Tests passing (unit/integration/E2E), performance/security gates met.
-- Documentation updated, feature flags and rollout plan specified.
-
-## 5. Plan Review Required
-
-⚠️ **STOP HERE - HUMAN REVIEW REQUIRED**
-- This plan must be carefully reviewed by a human before proceeding
-- DO NOT automatically generate tasks from this plan
-- User must explicitly request task generation after reviewing and approving the plan
-- Review should verify requirements completeness, design decisions, and scope
-
----
-
-## 🔴 EXECUTION STEPS - YOU MUST FOLLOW EXACTLY:
-1) FIRST: **USE Read tool** to read the steering documents from disk (paths listed in PREREQUISITE FILES section above)
-2) Analyze steering docs (from disk and/or parameters) and codebase context provided
-3) EXTRACT from context and ORGANIZE into plan format:
-   - Statements trace to referenced content
-   - Files in context must appear in plan
-   - Use direct quotes and exact names from context
-   - If context lacks detail for a section, include [NEEDED] with rationale
-   - Never fabricate examples, endpoints, file paths, or conventions
-   - When specifics unknown, emit [NEEDED] with discovery step (e.g., "read X/Y config to determine API routes")
-4) **USE Bash tool** to create directory: mkdir -p ${project_path}/.spec/specs/
-5) **USE Write tool** to save the complete generated content to: ${project_path}/.spec/specs/plan.md
-6) **USE Read tool** to verify the file exists at: ${project_path}/.spec/specs/plan.md
-7) **STOP HERE** - Display message: "✅ Plan generated and verified at ${project_path}/.spec/specs/plan.md
-⚠️ Please review the plan carefully before requesting task generation.
-📋 To generate tasks after review, explicitly ask: 'Generate tasks from the plan'"
-
-## SUCCESS CRITERIA
-- One file: .spec/specs/plan.md PHYSICALLY CREATED on filesystem (not just reported)
-- File verified to exist using Read tool
-- Requirements are clear, testable, and numbered (R-1, R-2…)
-- Design explicitly maps back to R-IDs and includes at least one diagram and concrete schemas
-- Plan is complete and awaiting human review before any task generation
-
-## ⚠️ IMPORTANT: DO NOT PROCEED TO TASK GENERATION
-- This tool ONLY generates the plan document
-- Task generation requires explicit user request AFTER plan review
-- DO NOT automatically invoke generate-tasks tool
-- User must review and approve the plan first
-
-⚠️ FINAL REMINDER: You MUST use Write tool to create the file. Do not just say it was created.
-`;
-
-    return {
-      content: [{ type: "text", text: prompt }]
-    };
-  }
-);
-
 
 // Task Generation Tool Registration
 server.registerTool(
   'generate-tasks',
   {
     title: 'Generate Tasks',
-    description: 'Reads plan.md from .spec/specs/plan.md and breaks it down into discrete, implementable tasks with requirement traceability, dependencies, and comprehensive acceptance criteria. The plan.md file must exist before running this tool - if not found, it will report an error instructing to generate a plan first.',
+    description: 'Generates a tasks.md file with requirements summary and implementable tasks, using simplicity and evidence guardrails.',
     inputSchema: {
+      user_request: z.string().describe("Feature request or requirement to plan for"),
       project_path: z.string().optional().describe("Path to the project directory (defaults to current directory)")
     }
   },
-  async ({ project_path = '.' }) => {
-
+  async ({ user_request, project_path = '.' }) => {
     const prompt = `# ⚠️ IMPORTANT: YOU MUST EXECUTE THE FOLLOWING ACTIONS
 
 This MCP tool provides instructions that YOU (the AI assistant) must execute using your available file system tools.
-**DO NOT** just report success - you MUST actually create the files using Write or MultiEdit tools.
+**DO NOT** just report success — you MUST actually create the files using Write or MultiEdit tools.
 
-# Generate Task Breakdown for ${project_path}
+# Generate Plan and Tasks for ${project_path}
 
 ## SIMPLICITY PRINCIPLES
 1. Start with minimal viable tasks
@@ -525,163 +255,100 @@ This MCP tool provides instructions that YOU (the AI assistant) must execute usi
 4. Focus on implementation, not process
 5. Prefer iterative improvements over perfection
 
-## PREREQUISITE: READ THE PLAN FROM DISK
-**MANDATORY FIRST STEP - Read the existing plan document:**
-1) **USE Read tool** to load: ${project_path}/.spec/specs/plan.md
-   - If this file doesn't exist, STOP and report: "❌ Error: plan.md not found at ${project_path}/.spec/specs/plan.md. Please generate a plan first using the generate-plan tool."
-   - DO NOT proceed without successfully reading this file
-   - PAY SPECIAL ATTENTION to Section 2.7 "Implementation Evidence" for [EXISTS], [EXAMPLE], and [NEEDED] tags
+## What This Tool Does
+- Reads steering docs if present and analyzes the codebase context
+- Extracts requirements from the user request and evidence from code
+- Produces ONE file: ${project_path}/.spec/specs/tasks.md containing:
+  - Overview and Requirements (with EARS acceptance criteria and R-IDs)
+  - Implementation tasks T-1... with traceability, code examples, file references
+  - Phases, dependencies, testing requirements, and risk assessment
 
-Also check for and read steering documents if needed for context:
-2) ${project_path}/.spec/steering/product.md (if exists)
-3) ${project_path}/.spec/steering/tech.md (if exists)
-4) ${project_path}/.spec/steering/structure.md (if exists)
-
-## 🔴 CRITICAL: YOU MUST CREATE THE FILE - NOT JUST REPORT SUCCESS
-### File Creation Instructions:
-1. **Create directory using Bash tool**: mkdir -p ${project_path}/.spec/specs/
-2. **Generate the complete tasks.md content** based on the plan you read from disk
-3. **USE THE WRITE TOOL** to save the generated content to: ${project_path}/.spec/specs/tasks.md
-4. **VERIFY the file exists** using Read tool after creation
-
-⚠️ The file MUST be physically created on the filesystem. Do NOT proceed without using the Write tool.
-
----
+## 🔴 CRITICAL: CREATE THE FILE — NOT JUST REPORT SUCCESS
+1) Create directory: mkdir -p ${project_path}/.spec/specs/
+2) Generate tasks.md using the template and guardrails below
+3) Save to: ${project_path}/.spec/specs/tasks.md
+4) Verify the file exists after creation (Read tool)
 
 # tasks.md
 
-## Task Status Legend
-- ⚪ Not Started
-- 🟡 In Progress
-- ✅ Done
+## 0. Overview
+- Purpose: Summarize the feature in 1–2 sentences
+- Scope: In/out for this iteration
+- Assumptions: Constraints that influence design
 
-## Task List
+## 1. Requirements (with EARS)
+Define numbered requirements and acceptance criteria directly here.
+- Formatting: “As a [role], I want [goal] so that [benefit]”
+- Use EARS for acceptance criteria: WHEN [condition] THEN THE SYSTEM SHALL [expected behavior]
+- Evidence tags: mark details as [EXISTS], [EXAMPLE], or [NEEDED]
 
-### Task T-1: [Clear Action-Oriented Title]
+### R-1: <Title from request/context>
+- User Story: As a <role>, I want <change>, so that <benefit>.
+- Files Affected: <List evidenced paths if available>
+- Acceptance Criteria:
+  - WHEN <condition with actual names> THEN THE SYSTEM SHALL <behavior>
+  - WHEN <error/edge case> THEN THE SYSTEM SHALL <behavior>
+
+### R-2: <Next requirement>
+- User Story: ...
+- Files Affected: ...
+- Acceptance Criteria: ...
+
+#### Edge Cases and Errors
+- [Edge case] → Expected behavior
+
+#### Non-Functional Requirements
+- Performance, security, accessibility, observability
+
+## 2. Implementation Tasks
+Tasks derived from the requirements and code evidence with traceability, evidence, and tests.
+
+## Task Structure Template
+
+### Task T-1: [Task Title]
 **Status**: ⚪ Not Started
-**Evidence**: [EXISTS/EXAMPLE/NEEDED] - Source reference from Section 2.7
-**Requirement Traceability**: Links to R-1, R-2 from plan.md
-**Priority**: High/Medium/Low
+**Evidence**: [EXISTS/EXAMPLE/NEEDED] — Cite sources
+**Requirement Traceability**: Links to R-[X] from the Requirements section
 
-#### Description
-[Detailed explanation of what needs to be implemented, referencing specific requirements from plan.md]
+#### Summary
+- What this task accomplishes
 
-#### Acceptance Criteria (EARS Format)
-- [ ] WHEN [specific condition] THEN THE SYSTEM SHALL [expected behavior]
-- [ ] WHEN [error condition] THEN THE SYSTEM SHALL [error handling behavior]
-- [ ] WHEN [edge case] THEN THE SYSTEM SHALL [edge case handling]
-- [ ] Performance requirement: [specific measurable criteria]
-- [ ] Security requirement: [specific security validation]
+#### Files to Modify
+- a/b/file1.<ext> — Implement X (use appropriate extension per tech.md)
 
-#### Implementation Details
-**Files to Create:**
-- \`src/components/ComponentName.tsx\` - [Purpose and main functionality]
-- \`src/types/TypeDefinitions.ts\` - [Interface definitions from design]
-- \`src/services/ServiceName.ts\` - [Business logic implementation]
+#### Files to Create
+- src/new/Feature.<ext> — Per design Section 2.x (use appropriate extension per tech.md)
 
-**Files to Modify:**
-- \`src/app/routes.tsx\` - [Add new routes/navigation]
-- \`src/utils/api.ts\` - [Add new API endpoints]
-- \`package.json\` - [Add dependencies if needed]
-
-**Code Patterns and Examples:**
-[Include actual code examples from Section 2.7 that are marked [EXISTS] or [EXAMPLE]]
+#### Code Patterns and Examples
 \`\`\`
-// If [EXISTS]: Include actual code from the codebase
-// If [EXAMPLE]: Include verified example from documentation
-// If [NEEDED]: Include interface/structure only, no implementation
+// Copy verbatim examples from Section 2.7 [EXAMPLE]
+// Use the appropriate language fence (e.g., \`\`\`java, \`\`\`python) based on tech.md
 \`\`\`
 
-**Database Changes:**
-\`\`\`sql
--- Schema changes from design document
-CREATE TABLE example_table (
-  id UUID PRIMARY KEY,
-  -- Fields from data models
-);
-\`\`\`
+#### Acceptance Criteria (EARS)
+- [ ] WHEN <condition> THEN THE SYSTEM SHALL <behavior>
+- [ ] WHEN <error/edge case> THEN THE SYSTEM SHALL <behavior>
 
-#### Dependencies
-- **Blocked By**: [T-X, T-Y] - Must complete these tasks first
-- **Blocks**: [T-Z] - These tasks depend on this completion
-- **External Dependencies**: [API keys, third-party services, etc.]
+#### Testing
+- Unit: location and naming per project conventions (see tech.md/structure.md); cover happy path, errors, edges
+- Integration: API/DB or component interaction tests per project conventions
+- E2E: user journey tests per project conventions (if applicable)
 
-#### Testing Requirements
-**Unit Tests:** \`tests/unit/ComponentName.test.tsx\`
-- [ ] Test happy path scenario
-- [ ] Test error handling for [specific error case]
-- [ ] Test edge case: [specific edge case from requirements]
-- [ ] Test validation logic
-- [ ] Mock external dependencies
-
-**Integration Tests:** \`tests/integration/FeatureName.test.tsx\`
-- [ ] Test API endpoint integration
-- [ ] Test database interactions
-- [ ] Test authentication/authorization
-- [ ] Test cross-component communication
-
-**E2E Tests:** \`tests/e2e/UserJourney.spec.tsx\`
-- [ ] Test complete user workflow from R-[X]
-- [ ] Test error recovery scenarios
-- [ ] Test responsive design on mobile/desktop
-
-#### Implementation Notes
-- **Security**: Input validation, sanitization, authorization checks
-- **Performance**: Caching strategy, query optimization, loading states
-- **Accessibility**: ARIA labels, keyboard navigation, screen reader support
-- **Mobile**: Touch interactions, responsive breakpoints, gesture handling
-- **Error Handling**: User-friendly error messages, fallback UI, retry logic
-- **Logging**: Debug info, error tracking, user action tracking
-- **Monitoring**: Performance metrics, error rates, user engagement
-
-#### Manual Testing Checklist
-1. [ ] Verify requirement R-[X] acceptance criteria met
-2. [ ] Test on different screen sizes (mobile, tablet, desktop)
-3. [ ] Test with keyboard navigation only
-4. [ ] Test error scenarios and recovery
-5. [ ] Verify loading states and transitions
-6. [ ] Test with slow network conditions
-7. [ ] Verify accessibility with screen reader
+#### Notes
+- Assumptions, follow-ups, clarifications
 
 ---
 
-### Task T-2: [Next Task Title]
-**Status**: ⚪ Not Started
-**Evidence**: [EXISTS/EXAMPLE/NEEDED] - Source reference from Section 2.7
-**Requirement Traceability**: Links to R-[X] from plan.md
-[Continue with same structure...]
+## Task Breakdown (Generated)
+- List all tasks T-1, T-2, ... with structure above
 
-### Research/Design Tasks (for [NEEDED] items with questions)
-For items marked [NEEDED] that require clarification:
-- Create research tasks to investigate options
-- Create design tasks to document decisions
-- Implementation tasks should wait until research/design is complete
+## Phases and Dependencies
+- Phase 1: Foundation (T-1, T-2, T-3)
+- Phase 2: Core (T-4, T-5, T-6)
+- Phase 3: Integration (T-7, T-8, T-9)
+- Phase 4: Quality/Launch (T-10, T-11, T-12)
 
----
-
-## Task Phases and Dependencies
-
-### Phase 1: Foundation (Prerequisites)
-- **T-1**: [Setup and Core Types]
-- **T-2**: [Database Schema and Migrations]
-- **T-3**: [Basic API Structure]
-
-### Phase 2: Core Features
-- **T-4**: [Main Feature Implementation] (depends on T-1, T-2)
-- **T-5**: [Business Logic Layer] (depends on T-2, T-3)
-- **T-6**: [User Interface Components] (depends on T-1, T-4)
-
-### Phase 3: Integration and Enhancement
-- **T-7**: [API Integration] (depends on T-4, T-5)
-- **T-8**: [Error Handling and Edge Cases] (depends on T-6, T-7)
-- **T-9**: [Performance Optimization] (depends on T-7)
-
-### Phase 4: Quality and Launch
-- **T-10**: [Comprehensive Testing] (depends on T-8, T-9)
-- **T-11**: [Documentation and Deployment] (depends on T-10)
-- **T-12**: [Monitoring and Observability] (depends on T-11)
-
-## Dependency Visualization
+## Dependency Graph
 \`\`\`mermaid
 graph TD
     T1[T-1: Setup] --> T4[T-4: Core Feature]
@@ -700,70 +367,33 @@ graph TD
     T11 --> T12[T-12: Monitoring]
 \`\`\`
 
-## Parallel Work Opportunities
-- **T-1** and **T-3** can be worked on simultaneously
-- **T-4** and **T-5** can be developed in parallel after Phase 1
-- **T-8** and **T-9** can be tackled by different team members
-
 ## Risk Assessment
-### High Risk Tasks
-- **T-[X]**: [Complex external integration] - *Mitigation: Early API testing, fallback strategy*
-- **T-[Y]**: [Performance-critical component] - *Mitigation: Benchmarking, incremental optimization*
+- High risk: <task> — mitigation
+- Critical path: T-1 → T-2 → T-4 → T-7 → T-8 → T-10 → T-11
 
-### Critical Path
-T-1 → T-2 → T-4 → T-7 → T-8 → T-10 → T-11
+## Execution Guidelines
+1) One task at a time; update status ⚪→🟡→✅
+2) Verify all EARS criteria before Done
+3) Tests pass; docs updated
 
-## Task Execution Guidelines
-1. **One Task at a Time**: Complete each task fully before moving to the next
-2. **Status Updates**: Update task status (⚪ → 🟡 → ✅) as you progress
-3. **Requirement Validation**: Verify each acceptance criterion before marking done
-4. **Code Review**: All tasks require review before completion
-5. **Testing**: Unit and integration tests must pass before task completion
-6. **Documentation**: Update relevant docs as part of each task
+## EXECUTION STEPS
+1) Read steering docs if present (.spec/steering/*.md) and relevant project files (package.json, README.md, etc.)
+2) Extract requirements and evidence from user request and codebase
+3) Map [EXISTS]/[EXAMPLE]/[NEEDED] to implementation vs. research tasks
+4) mkdir -p ${project_path}/.spec/specs/
+5) Write tasks to ${project_path}/.spec/specs/tasks.md
+6) Verify the file exists (Read tool)
 
-## Next Steps
-1. Review this task breakdown against the original plan.md
-2. Validate task dependencies and adjust if needed
-3. Begin with Phase 1 foundation tasks
-5. Use verify-implementation tool after each task completion
-
----
-
-## 🔴 EXECUTION STEPS - YOU MUST FOLLOW EXACTLY:
-1. **MANDATORY FIRST STEP**: **USE Read tool** to load: ${project_path}/.spec/specs/plan.md
-   - If this file doesn't exist, STOP and report error: "❌ Error: plan.md not found at ${project_path}/.spec/specs/plan.md. Please generate a plan first using the generate-plan tool."
-2. Read and analyze the complete plan document from disk
-3. Extract all requirements (R-1, R-2, etc.) for traceability
-4. Extract Section 2.7 "Implementation Evidence" to identify [EXISTS], [EXAMPLE], and [NEEDED] items
-5. Break down into tasks based on evidence type:
-   - [EXISTS] or [EXAMPLE] → Create implementation task with actual code
-   - [NEEDED] with clear specs → Create implementation task
-   - [NEEDED] with questions → Create research/design task first
-6. Include relevant code examples from Section 2.7 in each task
-7. Create comprehensive task list with implementation details
-8. **USE Bash tool** to create directory: mkdir -p ${project_path}/.spec/specs/
-9. **USE Write tool** to save the complete generated content to: ${project_path}/.spec/specs/tasks.md
-10. **USE Read tool** to verify the file was created at: ${project_path}/.spec/specs/tasks.md
-11. Ensure each task links back to specific requirements and evidence tags
-12. Include detailed testing requirements and manual checklists
-
-## SUCCESS CRITERIA:
-✅ Tasks.md file PHYSICALLY CREATED on filesystem (not just reported)
-✅ File verified to exist using Read tool
-✅ Each task has EARS-format acceptance criteria
-✅ Clear requirement traceability (T-X links to R-Y)
-✅ Detailed implementation guidance with code examples
-✅ Comprehensive testing requirements for each task
-✅ Dependency graph and risk assessment included
-✅ Ready for sequential task execution and verification
-
-⚠️ FINAL REMINDER: You MUST use Write tool to create the file. Do not just say it was created.`;
+## SUCCESS CRITERIA
+✅ .spec/specs/tasks.md physically created and verified
+✅ Requirements section with EARS acceptance criteria
+✅ Clear traceability (T-X → R-Y)
+✅ Code examples and file references included when available
+✅ Testing requirements and dependency graph included
+`;
 
     return {
-      content: [{
-        type: "text",
-        text: prompt
-      }]
+      content: [{ type: "text", text: prompt }]
     };
   }
 );
@@ -1012,13 +642,11 @@ Check that all tasks listed in "Blocked By" are marked as ✅ Done.
 If any dependencies are not complete, STOP and report the blockage.
 
 ### Context Gathering
-1. Read the plan document: ${project_path}/.spec/specs/plan.md
-   - Understand the requirements (R-X) that this task implements
-   - Review the design decisions related to this task
-
-2. Read steering documents if they exist:
+1. Read steering documents if they exist:
    - ${project_path}/.spec/steering/tech.md for technology standards
    - ${project_path}/.spec/steering/structure.md for file organization
+2. Read the tasks document: ${project_path}/.spec/specs/tasks.md
+   - Use the Requirements section (R-X) and task details as the source of truth
 
 ${update_status ? `
 ## PHASE 3: STATUS UPDATE - MARK AS IN PROGRESS
@@ -1107,20 +735,10 @@ Follow the "Manual Testing Checklist":
 
 ## PHASE 7: CODE QUALITY CHECKS
 
-Run these commands to ensure quality:
-\`\`\`bash
-# TypeScript compilation
-npx tsc --noEmit
-
-# Linting
-npm run lint
-
-# Build verification
-npm run build
-
-# Run tests
-npm test
-\`\`\`
+Use the documented commands from .spec/steering/tech.md to ensure quality.
+Specifically, look for the "Essential Commands" section (Type Check, Lint/Format, Build, Test).
+- If commands are documented: run them and fix issues found.
+- If not documented: skip running and add a TODO to update tech.md.
 
 Fix any issues before proceeding.
 
@@ -1138,7 +756,7 @@ Fix any issues before proceeding.
 1. Follow existing code patterns in the project
 2. Use existing utilities and helper functions
 3. Maintain consistent naming conventions
-4. Add TypeScript types (avoid 'any')
+4. Follow the project's typing conventions or type-safety practices
 5. Keep functions small and focused
 6. Write self-documenting code
 
@@ -1235,107 +853,46 @@ server.registerTool(
   'task-checker',
   {
     title: 'Check if Task is Complete',
-    description: 'Checks if a task can be marked as done by verifying all acceptance criteria checkboxes are checked and running automated tests. Returns PASS or FAIL with clear reasons.',
+    description: 'Prompt-only verification: instructs the agent to verify acceptance criteria checkboxes for a task with quoted evidence. Returns a PASS/FAIL decision rule to apply.',
     inputSchema: {
       task_id: z.string().describe("Task ID to check (e.g., T-1, T-2)"),
-      project_path: z.string().optional().describe("Path to project (defaults to current directory)"),
-      run_tests: z.boolean().optional().describe("Run tests and build (default: true)")
+      project_path: z.string().optional().describe("Path to project (defaults to current directory)")
     }
   },
-  async ({ task_id, project_path = '.', run_tests = true }) => {
-    const prompt = `# Check Task ${task_id} Completion Status
+  async ({ task_id, project_path = '.' }) => {
+    const prompt = `# Verify Task ${task_id} Completion (Prompt-Only)
 
-## READ-ONLY VERIFICATION
-This tool ONLY checks if a task is complete. It does NOT modify any files.
+Goal: Decide if Task ${task_id} can be marked Done based on acceptance criteria checkboxes.
 
-## PHASE 1: CHECK ACCEPTANCE CRITERIA
-1. Read ${project_path}/.spec/specs/tasks.md
-2. Find Task ${task_id} and count checkboxes:
-   - Count total checkboxes: both \`- [ ]\` and \`- [x]\`
-   - Count checked boxes: only \`- [x]\`
-   - Report: "Checkboxes: X/Y checked"
+What to verify
+- All acceptance criteria checkboxes for Task ${task_id} are marked "- [x]".
 
-**CRITICAL RULE**: Task can ONLY be marked Done when ALL checkboxes are \`[x]\`
+How to verify (evidence required)
+1) Locate the tasks file:
+   - Prefer: ${project_path}/.spec/specs/tasks.md
+   - Else: any tasks*.md that contains "Task ${task_id}"
+2) Find the Task ${task_id} block and its Acceptance Criteria section (or the closest equivalent for that task).
+3) Count only lines that exactly start with:
+   - Checked: "- [x]"
+   - Unchecked: "- [ ]"
+4) Quote the exact lines you counted and include path:line references.
 
-## PHASE 2: RUN AUTOMATED TESTS${run_tests ? `
+Decision rule
+- PASS: total > 0 AND unchecked == 0
+- FAIL: if any unchecked > 0, or if none found, or if task/section cannot be unambiguously identified (Unverifiable)
 
-### Step 1: Check Steering Documentation
-**FIRST**, check if ${project_path}/.spec/steering/tech.md exists:
-- Look for "Build and Test Commands" section
-- Use documented commands if available
-- This is the PRIMARY source of truth for test commands
+Output format
+- File: <path>
+- Quoted lines: (the lines counted with path:line)
+- Counts: Checked X/Y
+- Decision: PASS or FAIL
+- Reason: short explanation
 
-### Step 2: Auto-Detect Project Type and Commands
-If no steering docs, detect project type from config files and use appropriate commands.
+Notes
+- Do not run builds/tests here. When needed, use commands from .spec/steering/tech.md (Essential Commands).
+- Do not modify any files.`;
 
-### Step 3: Check Project Documentation
-Also check project documentation markdown files (README.md, CONTRIBUTING.md, DEVELOPMENT.md, docs/, etc.) for documented build and test commands
-
-### Step 4: Run Detected Commands
-Execute the appropriate commands and report results:
-- ✅ PASS (exit code 0)
-- ❌ FAIL (exit code non-zero)
-- ⚠️ Command not found (skip)` : ' (skipped)'}
-
-## PHASE 3: GENERATE REPORT
-
-### Checkbox Status
-- Total checkboxes: [count]
-- Checked: [count]
-- Unchecked: [count]
-- Result: [PASS if all checked / FAIL if any unchecked]
-
-### Test Results${run_tests ? `
-- Build: [PASS/FAIL/SKIPPED]
-- Tests: [PASS/FAIL/SKIPPED]
-- Lint: [PASS/FAIL/SKIPPED]` : ' (not run)'}
-
-### FINAL DECISION
-**TASK STATUS: [PASS or FAIL]**
-
-If PASS:
-- ✅ All checkboxes are checked
-- ✅ Tests pass (if run)
-- Task ${task_id} can be marked as Done
-
-If FAIL:
-- ❌ Reason: [List specific failures]
-- Next step: Fix the issues above before marking as Done
-
-### Tasks That Can Proceed
-If this task passes, these dependent tasks become available:
-[List task IDs that depend on ${task_id}]
-
-## ⚠️ IMPORTANT: THIS IS A SPEC MCP TOOL RESULT ⚠️
-
-**YOU HAVE JUST RUN THE SPEC MCP \`task-checker\` TOOL**
-
-This tool has verified whether Task ${task_id} is complete.
-
-**Based on the results above:**
-
-1. **If PASS (all checkboxes checked):**
-   - UPDATE the task status to ✅ Done in ${project_path}/.spec/specs/tasks.md
-   - CALL Spec MCP \`task-orchestrator\` tool to identify next tasks
-   - CALL Spec MCP \`task-executor\` tool for the next available task
-
-2. **If FAIL (some checkboxes unchecked):**
-   - DO NOT mark the task as Done
-   - Continue implementing the missing requirements
-   - Check the unchecked boxes as you complete them
-   - Run this checker again when ready
-
-**Remember:**
-- Task status is in the tasks.md FILE (not internal TODO)
-- Use Edit tool to update the tasks.md file directly
-- These are Spec MCP tools, not VSCode internal tools`;
-
-    return {
-      content: [{
-        type: "text",
-        text: prompt
-      }]
-    };
+    return { content: [{ type: 'text', text: prompt }] };
   }
 );
 

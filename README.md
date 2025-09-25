@@ -102,21 +102,16 @@ Search documentation for relevant information about frameworks, APIs, or migrati
 
 **Prompt:** `Search docs with Context7 MCP for [topic/framework/library]`
 
-### 3. Generate Plan
-Create a comprehensive plan based on your requirements and the current codebase context.
+### 3. Generate Tasks
+Ask the Spec MCP server to generate a clear, evidence‑driven task list from your goal.
 
-**Prompt:** `Create a plan with Spec MCP to [describe your objective]`
+Example prompt:
+- “Generate an implementation task breakdown for: <your goal>”
 
-This generates `.spec/specs/plan.md` with requirements, design, and traceability.
+Output:
+- `.spec/specs/tasks.md` (includes overview, requirements with EARS, implementable tasks, dependencies, and tests)
 
-### 4. Generate Tasks
-Break down the plan into actionable, testable tasks with dependencies.
-
-**Prompt:** `Generate tasks from the plan using Spec MCP`
-
-This creates `.spec/specs/tasks.md` with detailed implementation tasks.
-
-### 5. Implement Tasks
+### 4. Implement Tasks
 Execute tasks systematically using the task orchestrator, which handles dependencies and parallelization.
 
 **Prompt:** `Implement tasks from tasks.md using Spec MCP task orchestrator`
@@ -132,11 +127,10 @@ The orchestrator will:
 ### generate-codebase-analysis
 Analyzes codebase and generates three foundational analysis documents: product.md, tech.md, and structure.md in .spec/steering/ directory. These documents provide comprehensive analysis of the product features, technology stack, and project structure.
 
-### generate-plan
-Creates comprehensive plans from user requirements, combining requirements analysis with technical design.
-
 ### generate-tasks
-Breaks down plan.md into discrete, implementable tasks with requirement traceability, dependencies, and comprehensive acceptance criteria following task structure. Each task links back to specific requirements and includes detailed implementation guidance. Uses current directory if project_path not specified.
+Generates a single tasks.md with overview, requirements (EARS with R‑IDs), implementable tasks, dependencies, and testing guidance. Inputs:
+- `user_request` (required)
+- `project_path` (optional, defaults to `.`)
 
 ### task-orchestrator
 Analyzes tasks.md to identify dependencies, parallelization opportunities, and coordinate task execution. Returns a structured execution plan for deploying task executors efficiently.
@@ -144,8 +138,8 @@ Analyzes tasks.md to identify dependencies, parallelization opportunities, and c
 ### task-executor
 Executes a specific task from tasks.md by providing detailed implementation guidance, requirements, acceptance criteria, and code patterns. This tool focuses on implementing one task thoroughly.
 
-### verify-implementation
-READ-ONLY verification tool that checks completed task implementation against acceptance criteria, runs EXISTING project tests, and reports quality status. This tool ONLY verifies and reports - it does NOT create or modify any files, tests, or code.
+### task-checker
+Checks if a task can be marked as done by verifying all acceptance criteria checkboxes are checked and optionally running build/tests. Returns PASS or FAIL with clear reasons.
 
 ## License
 
