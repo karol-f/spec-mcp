@@ -233,8 +233,8 @@ These files should be automatically included in every AI interaction.`;
 server.registerTool(
   'generate-tasks',
   {
-    title: 'Generate Tasks',
-    description: 'Generates a tasks.md file with requirements summary and implementable tasks, using simplicity and evidence guardrails.',
+    title: 'Spec MCP: Generate tasks.md (Plan & Task Breakdown)',
+    description: 'Generate tasks.md (implementation plan & task breakdown) from your request and codebase. Writes `.spec/specs/tasks.md` with overview, numbered requirements using EARS, implementable tasks (T-1…), dependencies/phases, and testing guidance. Use for “task breakdown”, “create tasks.md”, “implementation plan”, or “roadmap”.',
     inputSchema: {
       user_request: z.string().describe("Feature request or requirement to plan for"),
       project_path: z.string().optional().describe("Path to the project directory (defaults to current directory)")

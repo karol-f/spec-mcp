@@ -128,7 +128,9 @@ The orchestrator will:
 Analyzes codebase and generates three foundational analysis documents: product.md, tech.md, and structure.md in .spec/steering/ directory. These documents provide comprehensive analysis of the product features, technology stack, and project structure.
 
 ### generate-tasks
-Generates a single tasks.md with overview, requirements (EARS with R‑IDs), implementable tasks, dependencies, and testing guidance. Inputs:
+Spec MCP: Generate tasks.md (Plan & Task Breakdown)
+
+Generate tasks.md (implementation plan & task breakdown) from your request and codebase. Writes `.spec/specs/tasks.md` with overview, numbered requirements using EARS, implementable tasks (T‑1…), dependencies/phases, and testing guidance. Use for “task breakdown”, “create tasks.md”, “implementation plan”, or “roadmap”. Inputs:
 - `user_request` (required)
 - `project_path` (optional, defaults to `.`)
 
