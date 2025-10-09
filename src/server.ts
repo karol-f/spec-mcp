@@ -866,44 +866,55 @@ server.registerTool(
   'task-checker',
   {
     title: 'Check if Task is Complete',
-    description: 'Prompt-only verification: instructs the agent to verify acceptance criteria checkboxes for a task with quoted evidence. Returns a PASS/FAIL decision rule to apply.',
+    description: 'Prompt-only verification: instruct the agent to verify acceptance criteria and run tests/type-check/lint/build using commands from steering tech.md or detected project setup. Returns a PASS/FAIL decision rule.',
     inputSchema: {
       task_id: z.string().describe("Task ID to check (e.g., T-1, T-2)"),
       project_path: z.string().optional().describe("Path to project (defaults to current directory)")
     }
   },
   async ({ task_id, project_path = '.' }) => {
-    const prompt = `# Verify Task ${task_id} Completion (Prompt-Only)
+    const prompt = `# Verify Task ${task_id} Completion (Command-Guided)
 
-Goal: Decide if Task ${task_id} can be marked Done based on acceptance criteria checkboxes.
+Goal
+- Decide if Task ${task_id} is Done based on acceptance criteria AND verification commands (tests / type-check / lint / build) appropriate to the project.
 
 What to verify
 - All acceptance criteria checkboxes for Task ${task_id} are marked "- [x]".
+- Verification commands succeed (tests pass; type-check passes; linter shows no errors; build compiles), as applicable to the tech stack.
+
+Where to get commands (tech-agnostic)
+1) Preferred: ${project_path}/.spec/steering/tech.md → "Essential Commands" (Install, Build, Test, Type Check, Lint/Format, etc.). Use those verbatim when present.
+2) If tech.md is missing or incomplete, detect by project files and choose common defaults.
 
 How to verify (evidence required)
 1) Locate the tasks file:
    - Prefer: ${project_path}/.spec/specs/tasks.md
    - Else: any tasks*.md that contains "Task ${task_id}"
-2) Find the Task ${task_id} block and its Acceptance Criteria section (or the closest equivalent for that task).
+2) Find the Task ${task_id} block and its Acceptance Criteria section (or closest equivalent).
 3) Count only lines that exactly start with:
    - Checked: "- [x]"
    - Unchecked: "- [ ]"
-4) Quote the exact lines you counted and include path:line references.
+   Quote the exact lines you counted and include path:line references.
+4) Run verification commands (from tech.md or detection above):
+   - Capture succinct summaries, e.g., jest totals, compiler/type-check pass, linter error count, build success line
+   - If a command is undefined for this stack, mark as Not Applicable
+   - If tech.md lists a command but it cannot be run, mark Unverifiable and explain
 
 Decision rule
-- PASS: total > 0 AND unchecked == 0
-- FAIL: if any unchecked > 0, or if none found, or if task/section cannot be unambiguously identified (Unverifiable)
+- PASS: (a) total criteria > 0 AND unchecked == 0, AND (b) all applicable verification commands succeed (no failing tests, no type errors, no build failures, no linter errors considered blocking per project policy)
+- FAIL: any unchecked > 0, OR any applicable command fails, OR task/section cannot be unambiguously identified (Unverifiable)
 
 Output format
 - File: <path>
-- Quoted lines: (the lines counted with path:line)
+- Quoted lines: (the acceptance-criteria lines with path:line)
+- Commands run: <cmd> → <result summary>
 - Counts: Checked X/Y
 - Decision: PASS or FAIL
-- Reason: short explanation
+- Reason: concise explanation
 
 Notes
-- Do not run builds/tests here. When needed, use commands from .spec/steering/tech.md (Essential Commands).
-- Do not modify any files.`;
+- Keep output simple and complete; quote only the necessary lines and summaries.
+- This tool instructs you to RUN the commands; do not modify any files while verifying.`;
 
     return { content: [{ type: 'text', text: prompt }] };
   }
