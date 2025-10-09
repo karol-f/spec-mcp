@@ -254,6 +254,7 @@ This MCP tool provides instructions that YOU (the AI assistant) must execute usi
 3. Only include necessary sections per task
 4. Focus on implementation, not process
 5. Prefer iterative improvements over perfection
+6. Plan-first. Include concrete examples when available; if not available, mark as [NEEDED].
 
 ## What This Tool Does
 - Reads steering docs if present and analyzes the codebase context
@@ -262,6 +263,7 @@ This MCP tool provides instructions that YOU (the AI assistant) must execute usi
   - Overview and Requirements (with EARS acceptance criteria and R-IDs)
   - Implementation tasks T-1... with traceability, code examples, file references
   - Phases, dependencies, testing requirements, and risk assessment
+
 
 ## 🔴 CRITICAL: CREATE THE FILE — NOT JUST REPORT SUCCESS
 1) Create directory: mkdir -p ${project_path}/.spec/specs/
@@ -281,6 +283,9 @@ Define numbered requirements and acceptance criteria directly here.
 - Formatting: “As a [role], I want [goal] so that [benefit]”
 - Use EARS for acceptance criteria: WHEN [condition] THEN THE SYSTEM SHALL [expected behavior]
 - Evidence tags: mark details as [EXISTS], [EXAMPLE], or [NEEDED]
+  - Evidence: reference files or snippets when available; if not available, mark as [NEEDED].
+- Invariants: constraints to preserve (e.g., existing behavior, public API contracts)
+- Out-of-scope: list what will not change to prevent scope creep
 
 ### R-1: <Title from request/context>
 - User Story: As a <role>, I want <change>, so that <benefit>.
@@ -388,7 +393,7 @@ graph TD
 ✅ .spec/specs/tasks.md physically created and verified
 ✅ Requirements section with EARS acceptance criteria
 ✅ Clear traceability (T-X → R-Y)
-✅ Code examples and file references included when available
+✅ References to files/snippets when available (mark [NEEDED] when unavailable)
 ✅ Testing requirements and dependency graph included
 `;
 
