@@ -249,12 +249,14 @@ This MCP tool provides instructions that YOU (the AI assistant) must execute usi
 # Generate Plan and Tasks for ${project_path}
 
 ## SIMPLICITY PRINCIPLES
-1. Start with minimal viable tasks
-2. Avoid over-engineering test requirements
-3. Only include necessary sections per task
-4. Focus on implementation, not process
-5. Prefer iterative improvements over perfection
-6. Plan-first. Include concrete examples when available; if not available, mark as [NEEDED].
+1. Keep outputs simple, clean, and straightforward.
+2. Do not cut scope or functionality to be "simple".
+3. Implement only what’s needed to satisfy acceptance criteria.
+4. Prefer minimal steps and sections; avoid ceremony.
+5. Reuse existing patterns; avoid new abstractions unless essential.
+6. Avoid overengineering — choose the smallest design that works.
+7. Be concise in wording, complete in coverage.
+8. Iterate: ship minimal complete, then improve.
 
 ## What This Tool Does
 - Reads steering docs if present and analyzes the codebase context
@@ -427,11 +429,14 @@ server.registerTool(
 - Focus on dependencies and parallelization of existing tasks
 
 ## SIMPLICITY PRINCIPLES
-1. Start with minimal viable tasks
-2. Avoid over-engineering test requirements
-3. Only include necessary sections per task
-4. Focus on implementation, not process
-5. Prefer iterative improvements over perfection
+1. Keep outputs simple, clean, and straightforward.
+2. Do not cut scope or functionality to be "simple".
+3. Implement only what’s needed to satisfy acceptance criteria.
+4. Prefer minimal steps and sections; avoid ceremony.
+5. Reuse existing patterns; avoid new abstractions unless essential.
+6. Avoid overengineering — choose the smallest design that works.
+7. Be concise in wording, complete in coverage.
+8. Iterate: ship minimal complete, then improve.
 
 ## CRITICAL: THIS IS A COORDINATION TOOL
 This tool analyzes the task queue and creates an execution strategy. It does NOT execute tasks directly.
@@ -616,11 +621,14 @@ server.registerTool(
     const prompt = `# Task Execution Guide for ${task_id}
 
 ## SIMPLICITY PRINCIPLES
-1. Start with minimal viable tasks
-2. Avoid over-engineering test requirements
-3. Only include necessary sections per task
-4. Focus on implementation, not process
-5. Prefer iterative improvements over perfection
+1. Keep outputs simple, clean, and straightforward.
+2. Do not cut scope or functionality to be "simple".
+3. Implement only what’s needed to satisfy acceptance criteria.
+4. Prefer minimal steps and sections; avoid ceremony.
+5. Reuse existing patterns; avoid new abstractions unless essential.
+6. Avoid overengineering — choose the smallest design that works.
+7. Be concise in wording, complete in coverage.
+8. Iterate: ship minimal complete, then improve.
 
 ## ⚠️ CRITICAL: TASK COMPLETION RULES
 **DO NOT MARK TASK AS DONE UNLESS:**
