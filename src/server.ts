@@ -266,6 +266,17 @@ This MCP tool provides instructions that YOU (the AI assistant) must execute usi
   - Implementation tasks T-1... with traceability, code examples, file references
   - Phases, dependencies, testing requirements, and risk assessment
 
+## Prerequisite: Steering Docs Usage
+1. **USE Read tool** to check if these files exist and read them if present:
+   - ${project_path}/.spec/steering/product.md
+   - ${project_path}/.spec/steering/tech.md
+   - ${project_path}/.spec/steering/structure.md
+2. If found, TREAT THEM AS AUTHORITATIVE and APPLY them when generating tasks:
+   - From tech.md: determine language/framework, correct file extensions, and "Essential Commands" (install, build, test, lint, type-check). Use these in tasks and testing sections.
+   - From structure.md: use actual directories, file naming conventions, and test locations when listing "Files to Modify/Create" and when referencing paths.
+   - From product.md: align terminology, user roles, and feature names in Requirements and task titles.
+3. If any file is missing, proceed but mark unknowns as [NEEDED] and prefer evidence from the codebase.
+
 
 ## 🔴 CRITICAL: CREATE THE FILE — NOT JUST REPORT SUCCESS
 1) Create directory: mkdir -p ${project_path}/.spec/specs/
@@ -384,7 +395,7 @@ graph TD
 3) Tests pass; docs updated
 
 ## EXECUTION STEPS
-1) Read steering docs if present (.spec/steering/*.md) and relevant project files (package.json, README.md, etc.)
+1) **USE Read tool** to check and read: ${project_path}/.spec/steering/product.md, tech.md, structure.md. If present, APPLY them to select correct file extensions, paths, commands, and terminology. If missing, continue and mark gaps as [NEEDED]. Also read relevant project files (package.json, README.md, etc.).
 2) Extract requirements and evidence from user request and codebase
 3) Map [EXISTS]/[EXAMPLE]/[NEEDED] to implementation vs. research tasks
 4) mkdir -p ${project_path}/.spec/specs/
