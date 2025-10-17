@@ -105,8 +105,10 @@ Search documentation for relevant information about frameworks, APIs, or migrati
 ### 3. Generate Tasks
 Ask the Spec MCP server to generate a clear, evidence‑driven task list from your goal.
 
+Having your previous analysis in context window you can create tasks from it.
+
 Example prompt:
-- “Generate an implementation task breakdown for: <your goal>”
+- `Generate tasks from the analysis using Spec MCP`
 
 Output:
 - `.spec/specs/tasks.md` (includes overview, requirements with EARS, implementable tasks, dependencies, and tests)
