@@ -2,6 +2,10 @@
 
 A Model Context Protocol server designed to streamline development workflows through AI-assisted analysis, planning, and verification.
 
+<a href="https://glama.ai/mcp/servers/@karol-f/spec-mcp">
+  <img width="380" height="200" src="https://glama.ai/mcp/servers/@karol-f/spec-mcp/badge" alt="Spec Server MCP server" />
+</a>
+
 ## Features
 
 - **Tech Steering**: Automated codebase analysis and documentation
@@ -132,7 +136,7 @@ Analyzes codebase and generates three foundational analysis documents: product.m
 ### generate-tasks
 Spec MCP: Generate tasks.md (Plan & Task Breakdown)
 
-Generate tasks.md (implementation plan & task breakdown) from your request and codebase. Writes `.spec/specs/tasks.md` with overview, numbered requirements using EARS, implementable tasks (T‑1…), dependencies/phases, and testing guidance. Use for “task breakdown”, “create tasks.md”, “implementation plan”, or “roadmap”. Inputs:
+Generate tasks.md (implementation plan & task breakdown) from your request and codebase. Writes `.spec/specs/tasks.md` with overview, numbered requirements using EARS, implementable tasks (T‑1…), dependencies/phases, and testing guidance. Use for "task breakdown", "create tasks.md", "implementation plan", or "roadmap". Inputs:
 - `user_request` (required)
 - `project_path` (optional, defaults to `.`)
 
